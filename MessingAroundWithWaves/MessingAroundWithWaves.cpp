@@ -422,14 +422,14 @@ private:
 
 int main(void)
 {
-    constexpr const size_t WIDTH = 400;
-    constexpr const size_t HEIGHT = 250;
+    constexpr const size_t WIDTH = 300;
+    constexpr const size_t HEIGHT = 150;
 
     DisplacementField2D initialConditions(WIDTH, std::vector<float>(HEIGHT, 0.0f));
 
     constexpr const float Pi = 3.14159265359f;
     constexpr const float FREQUENCY = 5.0f; // [Hz]
-    constexpr const float AMPLITUDE = 100000.0f;
+    constexpr const float AMPLITUDE = 1000.0f;
     const auto serviceAudioSine = [&](const float t)->float { return AMPLITUDE * std::sinf(2.0f * Pi * t * FREQUENCY); };
 
     std::vector<Source> sources = { Source(serviceAudioSine, {0.5f, 0.8f}) };
@@ -438,13 +438,14 @@ int main(void)
     ExplicitWorld2D w(343.0f * 10.0f, initialConditions, FieldUpdate::HAROON, BoundaryCondition::DIRICHLET, sources ,rects);
 
     InitWindow(WIDTH, HEIGHT, nullptr);
+    SetTargetFPS(60);
 
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        DrawDisplacement(w.Update(GetFrameTime()), 25.0f);
+        DrawDisplacement(w.Update(1.0f / 60.0f), 100.0f);
 
         EndDrawing();
     }
