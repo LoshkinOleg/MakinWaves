@@ -1,0 +1,1 @@
+To compile, set the vs project's include and library paths to point to thirdparty's respective directories. I didn't bother creating a CMake project for this small demo.
