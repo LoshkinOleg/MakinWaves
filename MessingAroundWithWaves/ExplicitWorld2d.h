@@ -111,6 +111,8 @@ public:
              Y + 1 | -       | Bottom  | -
         */
 
+        // 1D approx of acceleration: (lastLeft - 2*currentCenter + lastRight) / dt^2
+
         // Update the bulk of the field.
         switch (fieldUpdateType)
         {
