@@ -9,4 +9,4 @@ This repository contains the code for an upcoming blogpost about simulating 2D w
 - MacOS: No
 
 ## Third party credits:
-- [Raylib](https://github.com/raysan5/raylib])
+- [Raylib](https://github.com/raysan5/raylib)
