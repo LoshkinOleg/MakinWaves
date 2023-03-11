@@ -1,1 +1,12 @@
-To compile, set the vs project's include and library paths to point to thirdparty's respective directories. I didn't bother creating a CMake project for this small demo.asd
+# WIP
+
+# Oleg's 2D Wave Simulator
+This repository contains the code for an upcoming blogpost about simulating 2D wave propagation using the Finite Difference Method.
+
+## Platforms
+- Windows: OK
+- Linux: Not yet
+- MacOS: No
+
+## Third party credits:
+- [Raylib](https://github.com/raysan5/raylib])
