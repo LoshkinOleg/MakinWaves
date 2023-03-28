@@ -4,6 +4,8 @@
 #include <vector>
 #include <functional>
 #include <algorithm>
+#include <iostream>
+#include <string>
 
 namespace Sim {
     /*
@@ -81,20 +83,21 @@ namespace Sim {
         ExplicitWorld2d() = delete;
         ExplicitWorld2d(
             const float deltaTime,
-            const float waveCelerityX, const float waveCelerityY,
+            const float waveCelerity,
             const size_t simulationResolutionX, const size_t simulationResolutionY,
             const BoundaryCondition boundaryConditionToUse,
             const std::vector<Source>& sources, const std::vector<Obstacle>& obstacles)
             :
             dLast_(DisplacementField2D(simulationResolutionX, simulationResolutionY)), dCurrent_(DisplacementField2D(simulationResolutionX, simulationResolutionY)), dNext_(DisplacementField2D(simulationResolutionX, simulationResolutionY)),
             sources_(sources), obstacles_(obstacles),
-            cfl_(CourantFreidrichsLevyCondition(waveCelerityX, waveCelerityY, deltaTime, 1.0f / simulationResolutionX, 1.0f / simulationResolutionY)),
+            cfl_(CourantFreidrichsLevyCondition(waveCelerity, waveCelerity, deltaTime, 1.0f / simulationResolutionX, 1.0f / simulationResolutionY)),
             simResX_(simulationResolutionX),
             simResY_(simulationResolutionY),
             boundaryCond_(boundaryConditionToUse),
             dt_(deltaTime)
         {
-            if (cfl_ > 1.0f) {
+            std::cout << "CFL value: " << std::to_string(cfl_) << std::endl;
+            if (cfl_ > 0.5f) {
                 throw std::runtime_error("CourantFreidrichsLevy condition is not fulfilled, meaning that the wave propagates too quickly for the chosen grid size and the simulation is therefore not accurate.");
             }
         }

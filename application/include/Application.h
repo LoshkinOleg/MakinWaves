@@ -5,6 +5,7 @@
 #include "raylib.h"
 
 #include "ExplicitWorld2d.h"
+// #include "ExplicitWorld2d_Practice.h"
 
 namespace Sim {
 
@@ -33,7 +34,7 @@ namespace Sim {
             const size_t targetDisplayFPS,
             const size_t displayResolutionX, const size_t displayResolutionY,
             const float deltaTime,
-            const float waveCelerityX, const float waveCelerityY,
+            const float waveCelerity,
             const size_t simulationResolutionX, const size_t simulationResolutionY,
             const BoundaryCondition boundaryConditionToUse,
             const std::vector<Source>& sources, const std::vector<Obstacle>& obstacles)
@@ -42,7 +43,7 @@ namespace Sim {
             DisplayResolutionX(displayResolutionX), DisplayResolutionY(displayResolutionY),
             simResX_(simulationResolutionX), simResY_(simulationResolutionY),
             dToDraw_(DisplacementField2D(simulationResolutionX, simulationResolutionY)),
-            w_(ExplicitWorld2d(deltaTime, waveCelerityX, waveCelerityY, simulationResolutionX, simulationResolutionY, boundaryConditionToUse, sources, obstacles))
+            w_(ExplicitWorld2d(deltaTime, waveCelerity, simulationResolutionX, simulationResolutionY, boundaryConditionToUse, sources, obstacles))
         {}
 
         void Run(const float timeScale) {
