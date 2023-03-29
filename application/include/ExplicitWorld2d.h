@@ -13,7 +13,7 @@ namespace Sim {
         A description of the CFL: https://en.wikipedia.org/wiki/Courant%E2%80%93Friedrichs%E2%80%93Lewy_condition
     */
     constexpr inline float CourantFreidrichsLevyCondition(const float celerityX, const float celerityY, const float dt, const float dx, const float dy) {
-        return (celerityX * dt / dx) + (celerityY * dt / dy);
+        return (celerityX * dt / dx) * (celerityY * dt / dy);
     }
 
     enum BoundaryCondition {
@@ -97,7 +97,7 @@ namespace Sim {
             dt_(deltaTime)
         {
             std::cout << "CFL value: " << std::to_string(cfl_) << std::endl;
-            if (cfl_ > 0.5f) {
+            if (cfl_ > 1.0f) {
                 throw std::runtime_error("CourantFreidrichsLevy condition is not fulfilled, meaning that the wave propagates too quickly for the chosen grid size and the simulation is therefore not accurate.");
             }
         }

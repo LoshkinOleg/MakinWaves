@@ -23,7 +23,7 @@ constexpr const size_t DISPLAY_RESOLUTION_Y = 600;
 // Simulation parameters. If you're in Release mode and you get an exception, change to Debug mode and you'll see that it's because you need to adjust the parameters below.
 constexpr const float DT = 0.0001f; // Time precision of the simulation. Represents how much time passes with each update of the simulation.
 constexpr const float TIME_SCALE = 1000.0f; // Adjust this to make time speed up / slow down depending on your PC's power. The slower the time scale, the easier on the CPU.
-constexpr const float WAVE_CELERITY = 24.0f; // Speed at which a wave propagates in the X coordinate (speed of sound). Too slow and the simulation breaks down since the source oscilates faster than the speed of sound. Too fast and the simulation breaks down as well. 24 seems to be the sweet spot for this setup.
+constexpr const float WAVE_CELERITY = 80; // Speed at which a wave propagates in the X coordinate (speed of sound). Too slow and the simulation breaks down since the source oscilates faster than the speed of sound. Too fast and the simulation breaks down as well. 24 seems to be the sweet spot for this setup.
 constexpr const size_t SIMULATION_GRID_RESOLUTION_X = 100; // Number of cells on the X coordinate. The bigger the number of cells, the better the resolution, but the smaller DT needs to be prevent the waves from traveling at more than 1 cell per update, which would break the simulation.
 constexpr const size_t SIMULATION_GRID_RESOLUTION_Y = 100;
 constexpr const Sim::BoundaryCondition BOUNDARY_CONDITION = Sim::BoundaryCondition::MUR; // Defines what happens when a wave encouters a physical obstacle. DIRICHLET means that the wave is entirely reflected, MUR means that the wave is (almost) totally absorbed.
