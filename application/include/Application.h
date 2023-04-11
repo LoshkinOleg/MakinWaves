@@ -4,8 +4,8 @@
 
 #include "raylib.h"
 
-#include "ExplicitWorld2d.h"
-// #include "ExplicitWorld2d_Practice.h"
+// #include "ExplicitWorld2d.h"
+#include "ExplicitWorld2d_Practice.h"
 
 namespace Sim {
 

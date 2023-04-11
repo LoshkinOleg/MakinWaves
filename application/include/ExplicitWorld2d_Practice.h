@@ -4,6 +4,8 @@
 #include <vector>
 #include <functional>
 #include <algorithm>
+#include <iostream>
+#include <string>
 
 namespace Sim {
 
@@ -65,9 +67,8 @@ namespace Sim {
         float maxY = 0.0f;
     };
 
-    // TODO: implement the CFL.
-    constexpr inline float CourantFreidrichsLevyCondition(const float celerityX, const float celerityY, const float dt, const float dx, const float dy)
-    {
+    // TODO: implement this.
+    constexpr inline float CourantFreidrichsLevyCondition(const float celerity, const float dt, const float dx) {
         return 0.0f;
     }
 
@@ -80,29 +81,32 @@ namespace Sim {
         ExplicitWorld2d() = delete;
         ExplicitWorld2d(
             const float deltaTime,
-            const float waveCelerityX, const float waveCelerityY,
-            const size_t simulationResolutionX, const size_t simulationResolutionY,
+            const float waveCelerity,
+            const size_t simulationResolution,
             const BoundaryCondition boundaryConditionToUse,
             const std::vector<Source>& sources, const std::vector<Obstacle>& obstacles)
             :
-            dLast_(DisplacementField2D(simulationResolutionX, simulationResolutionY)), dCurrent_(DisplacementField2D(simulationResolutionX, simulationResolutionY)), dNext_(DisplacementField2D(simulationResolutionX, simulationResolutionY)),
+            dLast_(DisplacementField2D(simulationResolution, simulationResolution)), dCurrent_(DisplacementField2D(simulationResolution, simulationResolution)), dNext_(DisplacementField2D(simulationResolution, simulationResolution)),
             sources_(sources), obstacles_(obstacles),
-            cfl_(CourantFreidrichsLevyCondition(waveCelerityX, waveCelerityY, deltaTime, 1.0f / simulationResolutionX, 1.0f / simulationResolutionY)),
-            simResX_(simulationResolutionX),
-            simResY_(simulationResolutionY),
+            cfl_(CourantFreidrichsLevyCondition(waveCelerity, deltaTime, 1.0f / simulationResolution)),
+            simResX_(simulationResolution),
+            simResY_(simulationResolution),
             boundaryCond_(boundaryConditionToUse),
             dt_(deltaTime)
         {
+            std::cout << "CFL value: " << std::to_string(cfl_) << std::endl;
             if (cfl_ > 1.0f) {
                 throw std::runtime_error("CourantFreidrichsLevy condition is not fulfilled, meaning that the wave propagates too quickly for the chosen grid size and the simulation is therefore not accurate.");
             }
         }
 
-        // TODO: implement this
+        // TODO: implement this.
         const DisplacementField2D& Update(const float timeSinceLastDisplayFrame)
         {
             std::copy(dCurrent_.d.begin(), dCurrent_.d.end(), dLast_.d.begin());
             std::copy(dNext_.d.begin(), dNext_.d.end(), dCurrent_.d.begin());
+            t_++;
+            
             return dNext_;
         }
 
