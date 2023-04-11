@@ -69,7 +69,7 @@ namespace Sim {
 
     // TODO: implement this.
     constexpr inline float CourantFreidrichsLevyCondition(const float celerity, const float dt, const float dx) {
-        return 0.0f;
+        return 2.0f * celerity * dt / dx;
     }
 
     /*
@@ -101,11 +101,108 @@ namespace Sim {
         }
 
         // TODO: implement this.
-        const DisplacementField2D& Update(const float timeSinceLastDisplayFrame)
+        const DisplacementField2D& Update(const float displayDt)
         {
-            std::copy(dCurrent_.d.begin(), dCurrent_.d.end(), dLast_.d.begin());
-            std::copy(dNext_.d.begin(), dNext_.d.end(), dCurrent_.d.begin());
-            t_++;
+            dtRemainder_ += displayDt;
+            const size_t nrOfIterations = std::floor(dtRemainder_);
+            dtRemainder_ -= nrOfIterations;
+
+            for (size_t it = 0; it < nrOfIterations; it++)
+            {
+                /**
+                * General formula we're using:
+                *   nextCenter =
+                *       2*currentAtCenter - lastAtCenter
+                *       + (cfl_ * cfl_)
+                *       * (currentAtLeft + currentAtTop - 4*currentAtCenter + currentAtRight + currentAtBottom)
+                *       + dt_ * dt_ * f(t_ * dt_)
+                **/
+
+                for (size_t x = 1; x < simResX_ - 1; x++)
+                {
+                    for (size_t y = 1; y < simResY_ - 1; y++)
+                    {
+                        /**
+                        *   Neighboring cells:
+                        *             |  X - 1  |   X     | X + 1
+                        *       ----- | --------------------------
+                        *       Y - 1 | -       | Top     | -
+                        *           Y | Left    | Center  | Right
+                        *       Y + 1 | -       | Bottom  | -
+                        **/
+
+                        float& nextCenter = dNext_[x + 0][y + 0];
+                        const float currentAtCenter = dCurrent_[x + 0][y + 0];
+                        const float lastAtCenter = dLast_[x + 0][y + 0];
+                        const float currentAtLeft = dCurrent_[x - 1][y + 0];
+                        const float currentAtTop = dCurrent_[x + 0][y - 1];
+                        const float currentAtRight = dCurrent_[x + 1][y + 0];
+                        const float currentAtBottom = dCurrent_[x + 0][y + 1];
+
+                        nextCenter =
+                            2.0f * currentAtCenter - lastAtCenter
+                            + (cfl_ * cfl_)
+                            * (currentAtLeft + currentAtTop - 4 * currentAtCenter + currentAtRight + currentAtBottom);
+                    }
+                }
+
+                for (const auto& src : sources_)
+                {
+                    const size_t simPosX = std::floor(std::clamp(src.posX * (float)simResX_, 1.0f, (float)simResX_ - 1.0f));
+                    const size_t simPosY = std::floor(std::clamp(src.posY * (float)simResY_, 1.0f, (float)simResY_ - 1.0f));
+                    dNext_[simPosX][simPosY] += dt_ * dt_ * src.GetSample(t_ * dt_);
+                }
+
+                switch (boundaryCond_)
+                {
+                    case DIRICHLET:
+                    {
+                        for (const auto& obs : obstacles_)
+                        {
+                            for (size_t x = obs.minX * simResX_; x < obs.maxX * simResX_; x++)
+                            {
+                                for (size_t y = obs.minY * simResY_; y < obs.maxY * simResY_; y++)
+                                {
+                                    dNext_[x][y] = 0.0f;
+                                }
+                            }
+                        }
+
+                        for (size_t x = 0; x < simResX_; x++)
+                        {
+                            const size_t y = 0;
+                            dNext_[x][y] = 0.0f;
+                        }
+                        for (size_t x = 0; x < simResX_; x++)
+                        {
+                            const size_t y = simResY_ - 1;
+                            dNext_[x][y] = 0.0f;
+                        }
+                        for (size_t y = 0; y < simResY_; y++)
+                        {
+                            const size_t x = 0;
+                            dNext_[x][y] = 0.0f;
+                        }
+                        for (size_t y = 0; y < simResY_; y++)
+                        {
+                            const size_t x = simResX_ - 1;
+                            dNext_[x][y] = 0.0f;
+                        }
+                    }break;
+                    
+                    case MUR:
+                    {
+                    
+                    }break;
+                    
+                    default:
+                        break;
+                }
+
+                std::copy(dCurrent_.d.begin(), dCurrent_.d.end(), dLast_.d.begin());
+                std::copy(dNext_.d.begin(), dNext_.d.end(), dCurrent_.d.begin());
+                t_++;
+            }
             
             return dNext_;
         }
@@ -117,7 +214,7 @@ namespace Sim {
         size_t t_ = 0.0f;
         const size_t simResX_, simResY_;
         const BoundaryCondition boundaryCond_;
-        float accumulatedDt_ = 0.0f;
+        float dtRemainder_ = 0.0f;
         const float cfl_;
         const float dt_;
     };

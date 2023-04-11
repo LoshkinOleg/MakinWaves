@@ -102,13 +102,13 @@ namespace Sim {
             }
         }
 
-        const DisplacementField2D& Update(const float timeSinceLastDisplayFrame)
+        const DisplacementField2D& Update(const float displayDt)
         {
             // Update only if enough real time has passed to warrant a simulation update, and update multiple times if more than one dt time has passed since the last display update.
-            accumulatedDt_ += timeSinceLastDisplayFrame;
-            const size_t iterations = std::floor(accumulatedDt_);
-            accumulatedDt_ -= iterations;
-            for (size_t it = 0; it < iterations; it++)
+            dtRemainder_ += displayDt;
+            const size_t nrOfIterations = std::floor(dtRemainder_);
+            dtRemainder_ -= nrOfIterations;
+            for (size_t it = 0; it < nrOfIterations; it++)
             {
                 /*
                 Neighboring cells:
@@ -145,8 +145,8 @@ namespace Sim {
                 // Update field with forcing functions (aka sound sources). Doing it in a separate pass to avoid checking for every cell whether it contains a source.
                 for (auto& src : sources_)
                 {
-                    const size_t simPosX = std::clamp(src.posX, 0.0f, 1.0f) * simResX_;
-                    const size_t simPosY = std::clamp(src.posY, 0.0f, 1.0f) * simResY_;
+                    const size_t simPosX = std::floor(std::clamp(src.posX * (float)simResX_, 1.0f, (float)simResX_ - 1.0f));
+                    const size_t simPosY = std::floor(std::clamp(src.posY * (float)simResY_, 1.0f, (float)simResY_ - 1.0f));
 
                     // Formula: dNextCenter += dt^2 * f(t). This is the part we've left out in the pass above and assumed to be a constant function f(x) = 0 .
                     dNext_[simPosX][simPosY] += dt_ * dt_ * src.GetSample(t_ * dt_);
@@ -350,7 +350,7 @@ namespace Sim {
         size_t t_ = 0.0f;
         const size_t simResX_, simResY_;
         const BoundaryCondition boundaryCond_;
-        float accumulatedDt_ = 0.0f;
+        float dtRemainder_ = 0.0f;
         const float cfl_;
         const float dt_;
     };
