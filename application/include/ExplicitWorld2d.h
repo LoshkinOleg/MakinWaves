@@ -12,8 +12,8 @@ namespace Sim {
         The Courant–Friedrichs–Lewy condition, a formula used in the computations below and one that allows you to detect when a wave moves across the simulation grid faster than 1 cell / update, which would break the simulation.
         A description of the CFL: https://en.wikipedia.org/wiki/Courant%E2%80%93Friedrichs%E2%80%93Lewy_condition
     */
-    constexpr inline float CourantFreidrichsLevyCondition(const float celerityX, const float celerityY, const float dt, const float dx, const float dy) {
-        return (celerityX * dt / dx) * (celerityY * dt / dy);
+    constexpr inline float CourantFreidrichsLevyCondition(const float celerity, const float dt, const float dx) {
+        return 2.0f * (celerity * dt / dx);
     }
 
     enum BoundaryCondition {
@@ -84,15 +84,15 @@ namespace Sim {
         ExplicitWorld2d(
             const float deltaTime,
             const float waveCelerity,
-            const size_t simulationResolutionX, const size_t simulationResolutionY,
+            const size_t simulationResolution,
             const BoundaryCondition boundaryConditionToUse,
             const std::vector<Source>& sources, const std::vector<Obstacle>& obstacles)
             :
-            dLast_(DisplacementField2D(simulationResolutionX, simulationResolutionY)), dCurrent_(DisplacementField2D(simulationResolutionX, simulationResolutionY)), dNext_(DisplacementField2D(simulationResolutionX, simulationResolutionY)),
+            dLast_(DisplacementField2D(simulationResolution, simulationResolution)), dCurrent_(DisplacementField2D(simulationResolution, simulationResolution)), dNext_(DisplacementField2D(simulationResolution, simulationResolution)),
             sources_(sources), obstacles_(obstacles),
-            cfl_(CourantFreidrichsLevyCondition(waveCelerity, waveCelerity, deltaTime, 1.0f / simulationResolutionX, 1.0f / simulationResolutionY)),
-            simResX_(simulationResolutionX),
-            simResY_(simulationResolutionY),
+            cfl_(CourantFreidrichsLevyCondition(waveCelerity, deltaTime, 1.0f / simulationResolution)),
+            simResX_(simulationResolution),
+            simResY_(simulationResolution),
             boundaryCond_(boundaryConditionToUse),
             dt_(deltaTime)
         {
@@ -335,11 +335,11 @@ namespace Sim {
                 default:break;
                 }
 
+                std::copy(dCurrent_.d.begin(), dCurrent_.d.end(), dLast_.d.begin());
+                std::copy(dNext_.d.begin(), dNext_.d.end(), dCurrent_.d.begin());
                 t_++;
             }
 
-            std::copy(dCurrent_.d.begin(), dCurrent_.d.end(), dLast_.d.begin());
-            std::copy(dNext_.d.begin(), dNext_.d.end(), dCurrent_.d.begin());
             return dNext_;
         }
 

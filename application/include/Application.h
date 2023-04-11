@@ -35,15 +35,15 @@ namespace Sim {
             const size_t displayResolutionX, const size_t displayResolutionY,
             const float deltaTime,
             const float waveCelerity,
-            const size_t simulationResolutionX, const size_t simulationResolutionY,
+            const size_t simulationResolution,
             const BoundaryCondition boundaryConditionToUse,
             const std::vector<Source>& sources, const std::vector<Obstacle>& obstacles)
             :
             DisplayRefreshRate(targetDisplayFPS),
             DisplayResolutionX(displayResolutionX), DisplayResolutionY(displayResolutionY),
-            simResX_(simulationResolutionX), simResY_(simulationResolutionY),
-            dToDraw_(DisplacementField2D(simulationResolutionX, simulationResolutionY)),
-            w_(ExplicitWorld2d(deltaTime, waveCelerity, simulationResolutionX, simulationResolutionY, boundaryConditionToUse, sources, obstacles))
+            simResX_(simulationResolution), simResY_(simulationResolution),
+            dToDraw_(DisplacementField2D(simulationResolution, simulationResolution)),
+            w_(ExplicitWorld2d(deltaTime, waveCelerity, simulationResolution, boundaryConditionToUse, sources, obstacles))
         {}
 
         void Run(const float timeScale) {
